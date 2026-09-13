@@ -9,7 +9,7 @@ Commodities) Rules, 2011 and returns a structured verdict.
 Public API
 ──────────
 validate_package_data(extracted_data, ocr_full_text)
-    → (fields, violations, verdict, verdictNote)
+    → (fields, violations, verdict, verdictNote, rule_version)
 
 validate_consumer_care(details)
     → {"isComplete": bool, "missingFields": list, "score": int}
@@ -19,6 +19,10 @@ calculate_pixel_per_mm(coin_pixel_diameter)
 
 convert_px_to_mm(font_px, pixel_per_mm)
     → float   # millimetres, 2-decimal precision
+
+RULE_ENGINE_VERSION
+    str — the version string embedded in lmpcRules.json, exposed as a module
+    constant so callers can read it without going through validate_package_data.
 """
 
 from __future__ import annotations
@@ -26,12 +30,19 @@ from __future__ import annotations
 import json
 import re
 from pathlib import Path
+from typing import Optional
+
+from pydantic import ValidationError
 
 # ── Rules data ─────────────────────────────────────────────────────────────────
 
 RULES_PATH = Path(__file__).parent.parent / "data" / "lmpcRules.json"
 with open(RULES_PATH, "r") as _f:
     LMPC_RULES = json.load(_f)
+
+# ── Module-level version constant ──────────────────────────────────────────────
+# Exposed so routers / sealer can read it without calling the full validator.
+RULE_ENGINE_VERSION: str = LMPC_RULES.get("rule_engine_version", "unknown")
 
 # Confidence thresholds (from lmpcRules.json)
 _THRESHOLDS: dict[str, float] = LMPC_RULES.get("confidence_thresholds", {
@@ -179,9 +190,16 @@ def convert_px_to_mm(font_px: float, pixel_per_mm: float) -> float:
 def validate_package_data(
     extracted_data: dict,
     ocr_full_text: str = "",
-) -> tuple[list, list, str, str]:
+) -> tuple[list, list, str, str, str]:
     """
     Main orchestration function: validate extracted fields against LMPC rules.
+
+    **Defensive input handling**: The raw ``extracted_data`` dict is first
+    parsed through the ``ExtractedPackageData`` Pydantic schema.  This
+    coerces numeric strings (e.g. ``"250"``) to float and discards values
+    that are completely un-parseable, replacing them with ``None``.  A
+    ``ValidationError`` at schema parse time results in a safe ``review``
+    verdict rather than a 500 server error.
 
     Checks (in order):
       1. Prohibited expressions in OCR text (Rule 11(1), Rule 13)
@@ -195,18 +213,56 @@ def validate_package_data(
         ocr_full_text:  Full raw OCR text for prohibited-expression scanning.
 
     Returns:
-        (fields, violations, verdict, verdictNote)
+        (fields, violations, verdict, verdictNote, rule_version)
+        where ``rule_version`` is the ``RULE_ENGINE_VERSION`` module constant.
     """
+    # ── Lazy import to avoid circular dependency at module load ────────────────
+    from app.schemas.vision import ExtractedPackageData
+
     fields: list[dict] = []
     violations: list[dict] = []
 
-    # ── 1. Prohibited expressions ──────────────────────────────────────────────
+    # ── Defensive parse of extracted_data ─────────────────────────────────────
+    # Build a merged data dict: caller-supplied ocr_full_text takes precedence
+    # over any ocr_full_text key inside extracted_data.
+    merged_input = {**extracted_data}
     if ocr_full_text:
-        violations.extend(detect_prohibited_expressions(ocr_full_text))
+        merged_input["ocr_full_text"] = ocr_full_text
+
+    try:
+        data = ExtractedPackageData(**merged_input)
+    except ValidationError as exc:
+        # This should be extremely rare since the schema is lenient, but guard
+        # against it defensively.
+        violations.append({
+            "field": "extraction",
+            "plain": (
+                "Extraction data could not be validated — scan result may be "
+                f"unreliable. Detail: {exc.error_count()} schema error(s)."
+            ),
+            "rule": "Internal",
+            "severity": "critical",
+        })
+        return (
+            fields,
+            violations,
+            "fail",
+            "Extraction data validation failed. Manual review required.",
+            RULE_ENGINE_VERSION,
+        )
+
+    # Use ocr_full_text from the merged/validated data object for prohibited-
+    # expression scanning (falls back to empty string if absent).
+    effective_ocr_text = data.ocr_full_text or ""
+
+    # ── 1. Prohibited expressions ──────────────────────────────────────────────
+    if effective_ocr_text:
+        violations.extend(detect_prohibited_expressions(effective_ocr_text))
 
     # ── 2. Manufacturer name & address — Rule 6(1)(a) ─────────────────────────
-    mfg_val = extracted_data.get("manufacturer", "")
-    mfg_conf = float(extracted_data.get("manufacturer_confidence", 92.0))
+    mfg_val = data.manufacturer
+    # Fall back to 0.0 if confidence coercion failed (unparseable string → None)
+    mfg_conf = data.manufacturer_confidence if data.manufacturer_confidence is not None else 0.0
 
     if mfg_val:
         fields.append({
@@ -234,13 +290,14 @@ def validate_package_data(
         })
 
     # ── 3. Net weight / quantity — Rule 6(1)(c) + Rule 7 ─────────────────────
-    net_weight_val = extracted_data.get("net_weight_g")
-    net_weight_str = extracted_data.get("net_weight_str", "")
-    net_qty_conf = float(extracted_data.get("net_weight_confidence", 95.0))
+    net_weight_val = data.net_weight_g
+    net_weight_str = data.net_weight_str
+    # Fall back to 0.0 if confidence coercion failed (unparseable string → None)
+    net_qty_conf = data.net_weight_confidence if data.net_weight_confidence is not None else 0.0
 
-    if net_weight_val:
+    if net_weight_val is not None:
         # Font slab check (Rule 7)
-        font_height = extracted_data.get("net_weight_font_height_mm")
+        font_height = data.net_weight_font_height_mm
         if font_height is not None:
             slab = resolve_font_slab(float(net_weight_val))
             if slab and float(font_height) < slab["mandatory_min_font_height_mm"]:
@@ -280,9 +337,11 @@ def validate_package_data(
         })
 
     # ── 4. Consumer care — Rule 6(1)(f) ───────────────────────────────────────
-    consumer_care = extracted_data.get("consumer_care")
-    if consumer_care and isinstance(consumer_care, dict):
-        care_result = validate_consumer_care(consumer_care)
+    consumer_care = data.consumer_care
+    if consumer_care is not None:
+        # Convert validated Pydantic object back to dict for the helper.
+        care_dict = consumer_care.model_dump(exclude_none=False)
+        care_result = validate_consumer_care(care_dict)
 
         for missing_field in care_result["missingFields"]:
             violations.append({
@@ -335,4 +394,4 @@ def validate_package_data(
                 "manual review recommended before issuing a citation."
             )
 
-    return fields, violations, verdict, verdictNote
+    return fields, violations, verdict, verdictNote, RULE_ENGINE_VERSION

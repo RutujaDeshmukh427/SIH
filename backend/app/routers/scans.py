@@ -5,11 +5,11 @@ import uuid
 
 from app.core.database import get_db
 from app.models.scan import Scan
-from app.schemas.scan import ScanCreate, ScanResponse
+from app.schemas.scan import ScanCreate, ScanDBResponse
 
 router = APIRouter(prefix="/scans", tags=["scans"])
 
-@router.post("/", response_model=ScanResponse)
+@router.post("/", response_model=ScanDBResponse)
 def create_scan(scan_in: ScanCreate, db: Session = Depends(get_db)):
     db_scan = Scan(
         scan_type=scan_in.scan_type,
@@ -23,12 +23,12 @@ def create_scan(scan_in: ScanCreate, db: Session = Depends(get_db)):
     db.refresh(db_scan)
     return db_scan
 
-@router.get("/audit", response_model=List[ScanResponse])
+@router.get("/audit", response_model=List[ScanDBResponse])
 def get_audit_trail(skip: int = 0, limit: int = 100, db: Session = Depends(get_db)):
     scans = db.query(Scan).order_by(Scan.timestamp.desc()).offset(skip).limit(limit).all()
     return scans
 
-@router.get("/{evidence_seal_id}", response_model=ScanResponse)
+@router.get("/{evidence_seal_id}", response_model=ScanDBResponse)
 def get_scan_by_seal(evidence_seal_id: str, db: Session = Depends(get_db)):
     scan = db.query(Scan).filter(Scan.evidence_seal_id == evidence_seal_id).first()
     if not scan:

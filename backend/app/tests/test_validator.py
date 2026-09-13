@@ -149,7 +149,7 @@ class TestConfidenceRouting:
             "net_weight_font_height_mm": 2.5,   # valid for SLAB_B
             "ocr_full_text": "Some Company Ltd 100g",
         }
-        fields, violations, verdict, verdictNote = validate_package_data(
+        fields, violations, verdict, verdictNote, rule_version = validate_package_data(
             extracted, extracted["ocr_full_text"]
         )
         assert verdict == "review"
@@ -166,7 +166,7 @@ class TestConfidenceRouting:
             "net_weight_confidence": 95.0,
             "ocr_full_text": "Top Grade Foods, Mumbai 100g",
         }
-        fields, violations, verdict, _ = validate_package_data(
+        fields, violations, verdict, _, rule_version = validate_package_data(
             extracted, extracted["ocr_full_text"]
         )
         assert verdict == "pass"
@@ -181,10 +181,23 @@ class TestConfidenceRouting:
             "net_weight_confidence": 60.0,   # low, but shouldn't matter
             "ocr_full_text": "100g",
         }
-        _, violations, verdict, _ = validate_package_data(extracted, "100g")
+        _, violations, verdict, _, rule_version = validate_package_data(extracted, "100g")
         assert verdict == "fail"
         severity_values = [v["severity"] for v in violations]
         assert "critical" in severity_values
+
+    def test_rule_version_returned_in_tuple(self):
+        """validate_package_data must return a non-empty rule_version string."""
+        extracted = {
+            "manufacturer": "Test Corp",
+            "manufacturer_confidence": 90.0,
+            "net_weight_g": 500.0,
+            "net_weight_str": "500g",
+            "net_weight_confidence": 90.0,
+        }
+        _, _, _, _, rule_version = validate_package_data(extracted)
+        assert isinstance(rule_version, str)
+        assert len(rule_version) > 0
 
 
 # ────────────────────────────────────────────────────────────────────────────────

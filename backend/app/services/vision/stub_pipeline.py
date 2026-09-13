@@ -16,6 +16,15 @@ Sprint 2 image path:
     including graceful handling of invalid/empty base64.
 
 The /scan/image and /scan/qr response shapes are **not changed**.
+
+Return value
+────────────
+A 6-tuple:
+    (extracted_data, fields, violations, verdict, verdictNote, rule_version)
+
+The ``rule_version`` element is new in Engineer-3's sprint and is sourced
+directly from ``validate_package_data`` (which reads it from ``LMPC_RULES``).
+Routers must unpack all 6 values.
 """
 
 from __future__ import annotations
@@ -23,7 +32,7 @@ from __future__ import annotations
 from typing import Optional
 
 from app.services.vision.pipeline import VisionPipeline
-from app.utils.lmpc_validator import validate_package_data
+from app.utils.lmpc_validator import validate_package_data, RULE_ENGINE_VERSION
 
 # Singleton pipeline with default stubs; callers may inject alternatives for
 # integration tests or future real-model swap-in.
@@ -35,13 +44,13 @@ async def process_scan_stub(
     extracted_fields: Optional[dict] = None,
     *,
     pipeline: Optional[VisionPipeline] = None,
-) -> tuple[dict, list, list, str, str]:
+) -> tuple[dict, list, list, str, str, str]:
     """
     Thin shim between the scan routers and the Sprint 2 vision pipeline.
 
     Returns:
-        (extracted_data, fields, violations, verdict, verdictNote)
-        — same 5-tuple the routers have always expected.
+        (extracted_data, fields, violations, verdict, verdictNote, rule_version)
+        — a 6-tuple (rule_version is new in Engineer-3 sprint).
 
     Args:
         image_base64:     Base64 image string (may be invalid — handled
@@ -56,14 +65,24 @@ async def process_scan_stub(
     if extracted_fields is not None:
         extracted_data = extracted_fields
         ocr_full_text = extracted_fields.get("ocr_full_text", "")
-        fields, violations, verdict, verdictNote = validate_package_data(
+        fields, violations, verdict, verdictNote, rule_version = validate_package_data(
             extracted_data, ocr_full_text
         )
-        return extracted_data, fields, violations, verdict, verdictNote
+        return extracted_data, fields, violations, verdict, verdictNote, rule_version
 
     # ── Sprint 2 full pipeline path ───────────────────────────────────────────
     active_pipeline = pipeline or _DEFAULT_PIPELINE
     result = active_pipeline.run(image_base64)
 
     extracted_data = result.extracted_fields.to_dict()
-    return extracted_data, result.fields, result.violations, result.verdict, result.verdict_note
+    # The full pipeline result already went through the validator internally;
+    # we reconstruct rule_version from the module constant since pipeline
+    # results don't carry it yet.
+    return (
+        extracted_data,
+        result.fields,
+        result.violations,
+        result.verdict,
+        result.verdict_note,
+        RULE_ENGINE_VERSION,
+    )
