@@ -1,5 +1,5 @@
 from fastapi import APIRouter, Depends, HTTPException
-from sqlalchemy.ext.asyncio import AsyncSession
+from sqlalchemy.orm import Session
 from uuid import UUID
 
 from app.core.database import get_db
@@ -8,7 +8,7 @@ from app.schemas.audit import AuditResponse
 router = APIRouter(prefix="/audit", tags=["audit"])
 
 @router.get("/{audit_id}", response_model=AuditResponse)
-async def get_audit(audit_id: UUID, db: AsyncSession = Depends(get_db)):
+async def get_audit(audit_id: UUID, db: Session = Depends(get_db)):
     """
     Retrieve a specific audit by ID.
     Currently stubbed out since DB persistence is deferred.

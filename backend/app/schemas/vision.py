@@ -89,7 +89,7 @@ class ExtractedPackageData(BaseModel):
         if v is None:
             return None
         try:
-            return float(v)
+            return float(v)  # type: ignore[arg-type]
         except (ValueError, TypeError):
             return None
 

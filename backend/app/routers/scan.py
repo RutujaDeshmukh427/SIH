@@ -13,7 +13,7 @@ Engineer 3 changes (Rules & Evidence sprint):
 """
 
 from fastapi import APIRouter, Depends
-from sqlalchemy.ext.asyncio import AsyncSession
+from sqlalchemy.orm import Session
 from datetime import datetime
 import uuid
 import hashlib
@@ -29,7 +29,7 @@ router = APIRouter(prefix="/scan", tags=["scan"])
 
 
 @router.post("/image", response_model=ScanResponse)
-async def scan_image(request: ScanImageRequest, db: AsyncSession = Depends(get_db)):
+async def scan_image(request: ScanImageRequest, db: Session = Depends(get_db)):
     """
     Accepts an image and runs the LMPC compliance vision pipeline.
     Sprint 1: stubbed extraction, real validator.
@@ -65,17 +65,17 @@ async def scan_image(request: ScanImageRequest, db: AsyncSession = Depends(get_d
 
     return ScanResponse(
         audit_id=audit_id,
-        verdict=verdict,
+        verdict=verdict,  # type: ignore[arg-type]
         verdictNote=verdictNote,
         fields=fields,
         violations=violations,
-        evidence_seal=seal,
+        evidence_seal=seal,  # type: ignore[arg-type]
         rule_version=rule_version,
     )
 
 
 @router.post("/qr", response_model=ScanResponse)
-async def scan_qr(request: ScanQRRequest, db: AsyncSession = Depends(get_db)):
+async def scan_qr(request: ScanQRRequest, db: Session = Depends(get_db)):
     """
     Accepts QR content string, parses it into package fields, and runs LMPC validation.
 
@@ -118,13 +118,13 @@ async def scan_qr(request: ScanQRRequest, db: AsyncSession = Depends(get_db)):
             verdict="fail",
             verdictNote="QR code could not be decoded into recognisable package fields.",
             fields=[],
-            violations=[{
+            violations=[{  # type: ignore[list-item]
                 "field": "qr_content",
                 "plain": str(exc),
                 "rule": "Rule 6(1)",
                 "severity": "critical",
             }],
-            evidence_seal=seal,
+            evidence_seal=seal,  # type: ignore[arg-type]
             rule_version=RULE_ENGINE_VERSION,
         )
 
@@ -154,10 +154,10 @@ async def scan_qr(request: ScanQRRequest, db: AsyncSession = Depends(get_db)):
 
     return ScanResponse(
         audit_id=audit_id,
-        verdict=verdict,
+        verdict=verdict,  # type: ignore[arg-type]
         verdictNote=verdictNote,
         fields=fields,
         violations=violations,
-        evidence_seal=seal,
+        evidence_seal=seal,  # type: ignore[arg-type]
         rule_version=rule_version,
     )

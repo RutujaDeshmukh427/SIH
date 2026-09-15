@@ -168,7 +168,7 @@ class VisionPipeline:
         # ── Stage 7: Validate ─────────────────────────────────────────────────
         extracted_dict = extraction.package_fields.to_dict()
         ocr_full_text = extraction.package_fields.ocr_full_text
-        val_fields, val_violations, verdict, verdict_note = validate_package_data(
+        val_fields, val_violations, verdict, verdict_note, rule_version = validate_package_data(
             extracted_dict, ocr_full_text
         )
 
