@@ -20,10 +20,12 @@ export default function App() {
     localStorage.getItem("role") || null
   );
   const [activeTab, setActiveTab] = useState("citizen");
+  const [language, setLanguage] = useState("English");
   const [selectedNoticeScenario, setSelectedNoticeScenario] = useState(null);
   const [isScannerOpen, setIsScannerOpen] = useState(false);
   const [feedRefreshKey, setFeedRefreshKey] = useState(0);
-  const [isProfileOpen, setIsProfileOpen] = useState(false);
+  const [isProfileOpen, setIsProfileOpen] = useState(true);
+  const [hasFilledProfile, setHasFilledProfile] = useState(false);
   const [userProfile, setUserProfile] = useState({
     name: "",
     email: "",
@@ -75,6 +77,20 @@ export default function App() {
     }
   }, [role, activeTab]);
 
+  React.useEffect(() => {
+    const langMap = {
+      "English": "en", "Hindi": "hi", "Marathi": "mr", "Gujarati": "gu",
+      "Tamil": "ta", "Telugu": "te", "Kannada": "kn", "Malayalam": "ml",
+      "Bengali": "bn", "Punjabi": "pa", "Urdu": "ur", "Odia": "or", "Assamese": "as"
+    };
+    const code = langMap[language] || "en";
+    const select = document.querySelector('.goog-te-combo');
+    if (select) {
+      select.value = code;
+      select.dispatchEvent(new Event('change'));
+    }
+  }, [language]);
+
   const handleGenerateNotice = (scenario) => {
     setSelectedNoticeScenario(scenario);
     setActiveTab("notices");
@@ -109,6 +125,8 @@ export default function App() {
         onSwitchRole={handleSwitchRole}
         onLogout={handleLogout}
         onOpenProfile={() => setIsProfileOpen(true)}
+        language={language}
+        setLanguage={setLanguage}
       />
 
       {/* Main Content Area (Responsive width: Full on mobile, max-w-7xl multi-column on desktop) */}
@@ -192,9 +210,18 @@ export default function App() {
       {/* User Profile Modal */}
       <UserProfileModal
         isOpen={isProfileOpen}
-        onClose={() => setIsProfileOpen(false)}
+        onClose={() => {
+          if (hasFilledProfile) setIsProfileOpen(false);
+        }}
         profile={userProfile}
         setProfile={setUserProfile}
+        userRole={role}
+        onRoleChange={handleRoleChange}
+        isMandatory={!hasFilledProfile}
+        onSave={() => {
+          setHasFilledProfile(true);
+          setIsProfileOpen(false);
+        }}
       />
 
       {/* Persistent Chatbot Widget */}
