@@ -8,60 +8,18 @@ import NoticeGenerator from "./components/NoticeGenerator";
 import HeatmapMonitor from "./components/HeatmapMonitor";
 import MobileScannerModal from "./components/MobileScannerModal";
 import CitizenScanner from "./components/CitizenScanner";
-import RoleSelector from "./components/RoleSelector";
-import Login from "./components/Login";
 import { pushCitizenReport } from "./data/districtData";
-import Chatbot from "./components/Chatbot";
-import UserProfileModal from "./components/UserProfileModal";
 
 export default function App() {
-  const [token, setToken] = useState(localStorage.getItem("token"));
-  const [role, setRole] = useState(
-    localStorage.getItem("role") || null
-  );
+  const [userRole, setUserRole] = useState("citizen");
   const [activeTab, setActiveTab] = useState("citizen");
-  const [language, setLanguage] = useState("English");
   const [selectedNoticeScenario, setSelectedNoticeScenario] = useState(null);
   const [isScannerOpen, setIsScannerOpen] = useState(false);
   const [feedRefreshKey, setFeedRefreshKey] = useState(0);
-  const [isProfileOpen, setIsProfileOpen] = useState(true);
-  const [hasFilledProfile, setHasFilledProfile] = useState(false);
-  const [userProfile, setUserProfile] = useState({
-    name: "",
-    email: "",
-    gender: "",
-    preferences: "",
-    allergies: [],
-    hasDiabetes: false,
-  });
 
-  const handleRoleSelect = (selectedRole) => {
-    localStorage.setItem("role", selectedRole);
-    setRole(selectedRole);
-  };
-
-  const handleLogin = () => {
-    localStorage.setItem("token", "mock-jwt-token");
-    setToken("mock-jwt-token");
-  };
-
-  const handleLogout = () => {
-    localStorage.removeItem("token");
-    localStorage.removeItem("role");
-    setToken(null);
-    setRole(null);
-  };
-
-  const handleSwitchRole = () => {
-    localStorage.removeItem("role");
-    setRole(null);
-  };
-
-  const handleRoleChange = (selectedRole) => {
-    const nextRole = typeof selectedRole === "string"
-      ? selectedRole
-      : role === "citizen" ? "official" : "citizen";
-    handleRoleSelect(nextRole);
+  const handleRoleChange = () => {
+    const nextRole = userRole === "citizen" ? "official" : "citizen";
+    setUserRole(nextRole);
     setActiveTab(nextRole === "citizen" ? "citizen" : "rule6");
   };
 
@@ -72,24 +30,10 @@ export default function App() {
 
   React.useEffect(() => {
     const officialOnlyTabs = ["rule6", "vision", "rulesandbox", "notices"];
-    if (role === "citizen" && officialOnlyTabs.includes(activeTab)) {
+    if (userRole === "citizen" && officialOnlyTabs.includes(activeTab)) {
       setActiveTab("citizen");
     }
-  }, [role, activeTab]);
-
-  React.useEffect(() => {
-    const langMap = {
-      "English": "en", "Hindi": "hi", "Marathi": "mr", "Gujarati": "gu",
-      "Tamil": "ta", "Telugu": "te", "Kannada": "kn", "Malayalam": "ml",
-      "Bengali": "bn", "Punjabi": "pa", "Urdu": "ur", "Odia": "or", "Assamese": "as"
-    };
-    const code = langMap[language] || "en";
-    const select = document.querySelector('.goog-te-combo');
-    if (select) {
-      select.value = code;
-      select.dispatchEvent(new Event('change'));
-    }
-  }, [language]);
+  }, [userRole, activeTab]);
 
   const handleGenerateNotice = (scenario) => {
     setSelectedNoticeScenario(scenario);
@@ -105,14 +49,6 @@ export default function App() {
     setActiveTab("rule6");
   };
 
-  if (!token) {
-    return <Login onLogin={handleLogin} />;
-  }
-
-  if (!role) {
-    return <RoleSelector onSelect={handleRoleSelect} />;
-  }
-
   return (
     <div className="min-h-screen bg-ink text-text-1 flex flex-col font-sans selection:bg-brass selection:text-brass-ink bg-grid-mesh relative">
       {/* Navigation Header (Responsive: Full tabs on desktop/tablet, compact header on mobile) */}
@@ -120,22 +56,17 @@ export default function App() {
         activeTab={activeTab}
         setActiveTab={setActiveTab}
         onOpenScanner={() => setIsScannerOpen(true)}
-        role={role}
-        onSelectRole={handleRoleChange}
-        onSwitchRole={handleSwitchRole}
-        onLogout={handleLogout}
-        onOpenProfile={() => setIsProfileOpen(true)}
-        language={language}
-        setLanguage={setLanguage}
+        userRole={userRole}
+        onSwitchRole={handleRoleChange}
       />
 
       {/* Main Content Area (Responsive width: Full on mobile, max-w-7xl multi-column on desktop) */}
       <main className="flex-1 max-w-7xl w-full mx-auto px-4 sm:px-6 lg:px-8 py-4 sm:py-6 pb-24 md:pb-8">
-        {role === "citizen" && (
+        {userRole === "citizen" && (
           <CitizenScanner onReportSubmitted={handleCitizenReport} />
         )}
 
-        {(role === "inspector" || role === "official") && (
+        {(userRole === "inspector" || userRole === "official") && (
           <>
             {activeTab === "rule6" && (
               <Rule6Engine
@@ -156,7 +87,7 @@ export default function App() {
           </>
         )}
 
-        {role === "admin" && (
+        {userRole === "admin" && (
           <div className="space-y-4">
             <div className="bg-panel p-6 rounded-lg border border-panel-line">
               <h2 className="text-xl text-text-1 font-serif">
@@ -205,7 +136,7 @@ export default function App() {
         activeTab={activeTab}
         setActiveTab={setActiveTab}
         onOpenScanner={() => setIsScannerOpen(true)}
-        userRole={role}
+        userRole={userRole}
       />
 
       {/* Interactive Mobile Camera Scanner Modal */}
@@ -214,26 +145,6 @@ export default function App() {
         onClose={() => setIsScannerOpen(false)}
         onSelectScenarioAndScan={handleSelectScenarioAndScan}
       />
-
-      {/* User Profile Modal */}
-      <UserProfileModal
-        isOpen={isProfileOpen}
-        onClose={() => {
-          if (hasFilledProfile) setIsProfileOpen(false);
-        }}
-        profile={userProfile}
-        setProfile={setUserProfile}
-        userRole={role}
-        onRoleChange={handleRoleChange}
-        isMandatory={!hasFilledProfile}
-        onSave={() => {
-          setHasFilledProfile(true);
-          setIsProfileOpen(false);
-        }}
-      />
-
-      {/* Persistent Chatbot Widget */}
-      <Chatbot />
     </div>
   );
 }
