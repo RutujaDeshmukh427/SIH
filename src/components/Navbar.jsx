@@ -1,7 +1,6 @@
 import React from "react";
 import LogoMark from "./LogoMark";
-import { UserCircle, Globe, Wifi, WifiOff, Search } from "lucide-react";
-import useNetworkStatus from "../hooks/useNetworkStatus";
+import { UserCircle, Globe, Search } from "lucide-react";
 
 export default function Navbar({
   activeTab,
@@ -16,7 +15,6 @@ export default function Navbar({
   onLogout,
   onSwitchRole,
 }) {
-  const isOnline = useNetworkStatus();
 
   return (
     <header className="border-b border-panel-line bg-panel/85 backdrop-blur-xl sticky top-0 z-50 shadow-sm">
@@ -44,13 +42,6 @@ export default function Navbar({
             </button>
           )}
 
-          <span className={`hidden md:inline-flex items-center gap-1 px-2.5 py-0.5 rounded border text-[11px] font-mono uppercase ${isOnline
-            ? "bg-status-pass/10 text-status-pass border-status-pass/30"
-            : "bg-status-review/10 text-status-review border-status-review/30"
-            }`}>
-            {isOnline ? <Wifi size={12} /> : <WifiOff size={12} />}
-            {isOnline ? "Online" : "Offline"}
-          </span>
         </div>
 
         {/* Center: Global Search Bar (Enterprise feature) */}
