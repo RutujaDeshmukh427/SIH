@@ -5,3 +5,9 @@ alembic
 psycopg2-binary
 pydantic
 pydantic-settings
+pgvector
+pymupdf
+python-multipart
+sentence-transformers
+asyncpg
+greenlet

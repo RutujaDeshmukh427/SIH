@@ -30,6 +30,7 @@ Routers must unpack all 6 values.
 from __future__ import annotations
 
 from typing import Optional
+from sqlalchemy.orm import Session
 
 from app.services.vision.pipeline import VisionPipeline
 from app.utils.lmpc_validator import validate_package_data, RULE_ENGINE_VERSION
@@ -44,6 +45,7 @@ async def process_scan_stub(
     extracted_fields: Optional[dict] = None,
     *,
     pipeline: Optional[VisionPipeline] = None,
+    db: Optional[Session] = None,
 ) -> tuple[dict, list, list, str, str, str]:
     """
     Thin shim between the scan routers and the Sprint 2 vision pipeline.
@@ -60,13 +62,14 @@ async def process_scan_stub(
                           Used by /scan/qr and Sprint 1 tests.
         pipeline:         Optional ``VisionPipeline`` for dependency injection
                           in tests (e.g. to inject a low-confidence stub).
+        db:               Optional SQLAlchemy Session to pass to the validator.
     """
     # ── Sprint 1 override path ────────────────────────────────────────────────
     if extracted_fields is not None:
         extracted_data = extracted_fields
         ocr_full_text = extracted_fields.get("ocr_full_text", "")
         fields, violations, verdict, verdictNote, rule_version = validate_package_data(
-            extracted_data, ocr_full_text
+            extracted_data, ocr_full_text, db=db
         )
         return extracted_data, fields, violations, verdict, verdictNote, rule_version
 

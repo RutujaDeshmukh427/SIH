@@ -40,6 +40,7 @@ async def scan_image(request: ScanImageRequest, db: Session = Depends(get_db)):
         await process_scan_stub(
             request.image_base64,
             extracted_fields=request.extracted_fields,
+            db=db
         )
     )
 
@@ -131,7 +132,7 @@ async def scan_qr(request: ScanQRRequest, db: Session = Depends(get_db)):
     # Run parsed fields through the LMPC validator
     extracted_data, fields, violations, verdict, verdictNote, rule_version = (
         await process_scan_stub(
-            "qr_content", extracted_fields=extracted_fields
+            "qr_content", extracted_fields=extracted_fields, db=db
         )
     )
 

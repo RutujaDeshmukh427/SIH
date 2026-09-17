@@ -31,7 +31,7 @@ import json
 import re
 from pathlib import Path
 from typing import Optional
-
+from sqlalchemy.orm import Session
 from pydantic import ValidationError
 
 # ── Rules data ─────────────────────────────────────────────────────────────────
@@ -190,6 +190,7 @@ def convert_px_to_mm(font_px: float, pixel_per_mm: float) -> float:
 def validate_package_data(
     extracted_data: dict,
     ocr_full_text: str = "",
+    db: Session = None,
 ) -> tuple[list, list, str, str, str]:
     """
     Main orchestration function: validate extracted fields against LMPC rules.
@@ -211,6 +212,7 @@ def validate_package_data(
     Args:
         extracted_data: Dict of extracted package fields.
         ocr_full_text:  Full raw OCR text for prohibited-expression scanning.
+        db:             SQLAlchemy Session for fetching dynamic rules.
 
     Returns:
         (fields, violations, verdict, verdictNote, rule_version)
@@ -393,5 +395,21 @@ def validate_package_data(
                 f"Low extraction confidence ({min_conf:.1f}%) on one or more fields — "
                 "manual review recommended before issuing a citation."
             )
+
+    # ── 6. Annotate violations with legal text from DB ───────────────────────
+    if db and violations:
+        from app.models.extracted_rule import ExtractedRule
+        for v in violations:
+            rule_ref = v.get("rule")
+            if rule_ref:
+                # E.g. "Rule 6(1)(a)" -> fetch "Rule 6" or matching clause
+                # A simple match by looking up by title or number. 
+                # Our rule_number in JSON was e.g. "6" or "11"
+                match = re.search(r"Rule\s+(\d+)", rule_ref, re.IGNORECASE)
+                if match:
+                    rule_num = match.group(1)
+                    db_rule = db.query(ExtractedRule).filter(ExtractedRule.rule_number == rule_num).first()
+                    if db_rule:
+                        v["rule_text"] = db_rule.original_text
 
     return fields, violations, verdict, verdictNote, RULE_ENGINE_VERSION
