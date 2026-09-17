@@ -1,6 +1,7 @@
 import React, { useState } from "react";
 import Navbar from "./components/Navbar";
 import BottomNav from "./components/BottomNav";
+import Sidebar from "./components/Sidebar";
 import HomePage from "./components/HomePage";
 import LandingPage from "./components/LandingPage";
 import LoginModal from "./components/LoginModal";
@@ -90,100 +91,114 @@ export default function App() {
   }
 
   return (
-    <div className="min-h-screen bg-ink text-text-1 flex flex-col font-sans selection:bg-blue-600/15 selection:text-blue-900 bg-grid-mesh relative">
-      {/* Navigation Header */}
-      <Navbar
+    <div className="min-h-screen bg-ink text-text-1 flex font-sans selection:bg-blue-600/15 selection:text-blue-900 bg-grid-mesh relative">
+      {/* Sidebar for Desktop */}
+      <Sidebar
         activeTab={activeTab}
         setActiveTab={setActiveTab}
         onOpenScanner={() => setIsScannerOpen(true)}
         userRole={userRole}
-        onSwitchRole={handleRoleChange}
-        onRoleChange={handleRoleChange}
-        onOpenProfile={() => setIsProfileOpen(true)}
-        onOpenLogin={() => setIsLoginOpen(true)}
-        isLoggedIn={isLoggedIn}
-        currentUser={currentUser}
-        language={language}
-        setLanguage={setLanguage}
-        onLogout={handleLogout}
       />
 
-      {/* Main Content Area */}
-      <main className="flex-1 max-w-7xl w-full mx-auto px-4 sm:px-6 lg:px-8 py-4 sm:py-6 pb-28">
-        {activeTab === "home" && (
-          <HomePage
-            onStartOfficial={() => {
-              setUserRole("official");
-              setActiveTab("vision");
-            }}
-            onStartCitizen={() => {
-              setUserRole("citizen");
-              setActiveTab("citizen");
-            }}
-            onOpenLogin={() => setIsLoginOpen(true)}
-          />
-        )}
+      {/* Main Content Wrapper */}
+      <div className="flex-1 flex flex-col min-w-0">
+        {/* Navigation Header */}
+        <Navbar
+          activeTab={activeTab}
+          setActiveTab={setActiveTab}
+          onOpenScanner={() => setIsScannerOpen(true)}
+          userRole={userRole}
+          onSwitchRole={handleRoleChange}
+          onRoleChange={handleRoleChange}
+          onOpenProfile={() => setIsProfileOpen(true)}
+          onOpenLogin={() => setIsLoginOpen(true)}
+          isLoggedIn={isLoggedIn}
+          currentUser={currentUser}
+          language={language}
+          setLanguage={setLanguage}
+          onLogout={handleLogout}
+        />
 
-        {activeTab === "vision" && (
-          <VisionInspector />
-        )}
+        {/* Main Content Area */}
+        <main className="flex-1 max-w-7xl w-full mx-auto px-4 sm:px-6 lg:px-8 py-4 sm:py-6 pb-28">
+          {activeTab === "home" && (
+            <HomePage
+              onStartOfficial={() => {
+                setUserRole("official");
+                setActiveTab("vision");
+              }}
+              onStartCitizen={() => {
+                setUserRole("citizen");
+                setActiveTab("citizen");
+              }}
+              onOpenLogin={() => setIsLoginOpen(true)}
+              userRole={userRole}
+            />
+          )}
 
-        {activeTab === "rule6" && (
-          <Rule6Engine
-            mode={rule6Mode}
-            setMode={setRule6Mode}
-            onGenerateNotice={handleGenerateNotice}
-            onOpenScanner={() => setIsScannerOpen(true)}
-          />
-        )}
+          {activeTab === "vision" && (
+            <VisionInspector />
+          )}
 
-        {activeTab === "rulesandbox" && (
-          <RuleEngineSandbox />
-        )}
+          {activeTab === "rule6" && (
+            <Rule6Engine
+              mode={rule6Mode}
+              setMode={setRule6Mode}
+              onGenerateNotice={handleGenerateNotice}
+              onOpenScanner={() => setIsScannerOpen(true)}
+            />
+          )}
 
-        {activeTab === "notices" && (
-          <NoticeGenerator
-            scenarioForNotice={selectedNoticeScenario}
-            onBackToScan={() => setActiveTab("vision")}
-          />
-        )}
+          {activeTab === "rulesandbox" && (
+            <RuleEngineSandbox />
+          )}
 
-        {activeTab === "heatmap" && (
-          <HeatmapMonitor refreshKey={feedRefreshKey} />
-        )}
+          {activeTab === "notices" && (
+            <NoticeGenerator
+              scenarioForNotice={selectedNoticeScenario}
+              onBackToScan={() => setActiveTab("vision")}
+            />
+          )}
 
-        {activeTab === "citizen" && (
-          <CitizenScanner onReportSubmitted={handleCitizenReport} />
-        )}
-      </main>
+          {activeTab === "heatmap" && (
+            <HeatmapMonitor refreshKey={feedRefreshKey} />
+          )}
 
-      {/* Global Regulatory Footer */}
-      <footer className="border-t border-panel-line bg-panel-darker py-5 sm:py-6 text-xs text-text-3 mt-8 sm:mt-12 mb-20 no-print">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 flex flex-col sm:flex-row items-center justify-between gap-4">
-          <div className="max-w-2xl text-center sm:text-left leading-relaxed">
-            <p>
-              Rule citations reference the <strong>Legal Metrology (Packaged Commodities) Rules, 2011</strong>, as amended by the Second Amendment Rules, 2022 (electronics QR proviso) and e-commerce digital disclosure amendments (Rule 6(10) &amp; Rule 6(10A)).
-            </p>
-            <p className="mt-1 text-[11px] font-mono text-text-2">
-              Department of Consumer Affairs (DoCA) • Ministry of Consumer Affairs, Food &amp; Public Distribution • SIH 2026 Problem Statement 26034
-            </p>
+          {activeTab === "citizen" && (
+            <CitizenScanner onReportSubmitted={handleCitizenReport} />
+          )}
+        </main>
+
+        {/* Global Regulatory Footer */}
+        <footer className="border-t border-panel-line bg-panel-darker py-5 sm:py-6 text-xs text-text-3 mt-8 sm:mt-12 mb-20 md:mb-0 no-print">
+          <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 flex flex-col sm:flex-row items-center justify-between gap-4">
+            <div className="max-w-2xl text-center sm:text-left leading-relaxed">
+              <p>
+                Rule citations reference the <strong>Legal Metrology (Packaged Commodities) Rules, 2011</strong>, as amended by the Second Amendment Rules, 2022 (electronics QR proviso) and e-commerce digital disclosure amendments (Rule 6(10) &amp; Rule 6(10A)).
+              </p>
+              <p className="mt-1 text-[11px] font-mono text-text-2">
+                Department of Consumer Affairs (DoCA) • Ministry of Consumer Affairs, Food &amp; Public Distribution • SIH 2026 Problem Statement 26034
+              </p>
+            </div>
+
+            <div className="flex flex-col sm:items-end gap-1 text-[11px] font-mono text-center sm:text-right flex-none">
+              <span className="text-brass font-semibold">LabelLens Compliance Verification System</span>
+              <span>Tamper-Proof Chain-of-Custody (SHA-256)</span>
+              <span className="text-status-pass">● All Core Services Operational</span>
+            </div>
           </div>
-
-          <div className="flex flex-col sm:items-end gap-1 text-[11px] font-mono text-center sm:text-right flex-none">
-            <span className="text-brass font-semibold">LabelLens Compliance Verification System</span>
-            <span>Tamper-Proof Chain-of-Custody (SHA-256)</span>
-            <span className="text-status-pass">● All Core Services Operational</span>
-          </div>
-        </div>
-      </footer>
+        </footer>
+      </div>
 
       {/* Fixed Mobile Bottom Navigation */}
-      <BottomNav
-        activeTab={activeTab}
-        setActiveTab={setActiveTab}
-        onOpenScanner={() => setIsScannerOpen(true)}
-        userRole={userRole}
-      />
+      <div className="md:hidden">
+        <BottomNav
+          activeTab={activeTab}
+          setActiveTab={setActiveTab}
+          onOpenScanner={() => setIsScannerOpen(true)}
+          userRole={userRole}
+        />
+      </div>
 
       {/* Interactive Mobile Camera Scanner Modal */}
       <MobileScannerModal

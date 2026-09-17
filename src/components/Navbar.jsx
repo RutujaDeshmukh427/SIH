@@ -1,6 +1,6 @@
 import React from "react";
 import LogoMark from "./LogoMark";
-import { UserCircle, Globe, Wifi, WifiOff } from "lucide-react";
+import { UserCircle, Globe, Wifi, WifiOff, Search } from "lucide-react";
 import useNetworkStatus from "../hooks/useNetworkStatus";
 
 export default function Navbar({
@@ -51,6 +51,18 @@ export default function Navbar({
             {isOnline ? <Wifi size={12} /> : <WifiOff size={12} />}
             {isOnline ? "Online" : "Offline"}
           </span>
+        </div>
+
+        {/* Center: Global Search Bar (Enterprise feature) */}
+        <div className="hidden md:flex flex-1 max-w-md mx-4 relative">
+          <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+            <Search size={16} className="text-slate-400" />
+          </div>
+          <input 
+            type="text" 
+            placeholder="Search products, manufacturers, or inspection IDs..." 
+            className="w-full bg-slate-100 border border-slate-200 text-slate-800 text-sm font-medium rounded-xl py-1.5 pl-9 pr-4 focus:outline-none focus:ring-2 focus:ring-brass/30 focus:border-brass/50 transition-all placeholder:text-slate-400 shadow-inner"
+          />
         </div>
 
         {/* Right Controls: Language Selector, Login Button & Profile */}
