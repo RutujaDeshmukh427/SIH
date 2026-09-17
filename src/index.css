@@ -1,4 +1,4 @@
-@import url('https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;500&family=Space+Grotesk:wght@400;500;600;700&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@500;600;700;800;900&family=Inter:wght@300;400;500;600;700;800&family=Montserrat:wght@500;600;700;800&family=JetBrains+Mono:wght@400;500&display=swap');
 
 @tailwind base;
 @tailwind components;
@@ -7,107 +7,43 @@
 @layer base {
   :root {
     --ink: #F8FAFC;
-    --panel: rgba(255, 255, 255, 0.7);
-    --panel-raised: rgba(255, 255, 255, 0.95);
-    --panel-line: rgba(148, 163, 184, 0.15);
+    --panel: rgba(255, 255, 255, 0.92);
+    --panel-raised: #FFFFFF;
+    --panel-line: rgba(226, 232, 240, 0.9);
     --paper: #FFFFFF;
-    --paper-ink: #1E293B;
-    --brass: #3B82F6;
-    --brass-strong: #60A5FA;
+    --paper-ink: #0F172A;
+    --brass: #1D4ED8;
+    --brass-strong: #1E40AF;
     --brass-ink: #FFFFFF;
     --text-1: #0F172A;
-    --text-2: #475569;
-    --text-3: #94A3B8;
-    --pass: #10B981;
-    --fail: #EF4444;
-    --review: #F59E0B;
+    --text-2: #334155;
+    --text-3: #64748B;
+    --pass: #059669;
+    --fail: #DC2626;
+    --review: #D97706;
   }
 
   body {
     background-color: var(--ink);
     color: var(--text-1);
-    font-family: 'Outfit', -apple-system, BlinkMacSystemFont, sans-serif;
+    font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
     -webkit-tap-highlight-color: transparent;
     overflow-x: hidden;
   }
 }
 
-/* Premium Animated Grid Background for SIH Hackathon */
+/* Executive Professional Technical Backdrop */
 .bg-grid-mesh {
   background-color: #F8FAFC;
   background-image:
-    radial-gradient(ellipse at top left, rgba(59, 130, 246, 0.08) 0%, transparent 40%),
-    radial-gradient(ellipse at bottom right, rgba(20, 184, 166, 0.08) 0%, transparent 40%),
-    linear-gradient(to right, rgba(148, 163, 184, 0.05) 1px, transparent 1px),
-    linear-gradient(to bottom, rgba(148, 163, 184, 0.05) 1px, transparent 1px);
-  background-size: 100% 100%, 100% 100%, 40px 40px, 40px 40px;
+    radial-gradient(ellipse at 50% -20%, rgba(219, 234, 254, 0.5) 0%, transparent 60%),
+    radial-gradient(ellipse at 100% 100%, rgba(224, 242, 254, 0.3) 0%, transparent 50%),
+    linear-gradient(to right, rgba(226, 232, 240, 0.4) 1px, transparent 1px),
+    linear-gradient(to bottom, rgba(226, 232, 240, 0.4) 1px, transparent 1px);
+  background-size: 100% 100%, 100% 100%, 36px 36px, 36px 36px;
   position: relative;
   background-attachment: fixed;
   z-index: 0;
-}
-
-/* Pulsing ambient core */
-.bg-grid-mesh::before {
-  content: "";
-  position: fixed;
-  top: 50%;
-  left: 50%;
-  width: 70vw;
-  height: 70vw;
-  min-width: 600px;
-  min-height: 600px;
-  transform: translate(-50%, -50%);
-  background: radial-gradient(circle, rgba(59, 130, 246, 0.04) 0%, rgba(20, 184, 166, 0.03) 30%, transparent 65%);
-  animation: pulseCore 10s ease-in-out infinite alternate;
-  pointer-events: none;
-  z-index: -1;
-}
-
-/* Verifying Scan Line */
-.bg-grid-mesh::after {
-  content: "";
-  position: fixed;
-  top: 0;
-  left: 0;
-  right: 0;
-  height: 1px;
-  background: linear-gradient(90deg, transparent, rgba(59, 130, 246, 0.4), transparent);
-  box-shadow: 0 0 20px 2px rgba(59, 130, 246, 0.2);
-  animation: scanlineSweep 8s cubic-bezier(0.4, 0, 0.2, 1) infinite;
-  pointer-events: none;
-  z-index: 1;
-}
-
-@keyframes pulseCore {
-  0% {
-    transform: translate(-50%, -50%) scale(0.9);
-    opacity: 0.8;
-  }
-
-  100% {
-    transform: translate(-50%, -50%) scale(1.1);
-    opacity: 1;
-  }
-}
-
-@keyframes scanlineSweep {
-  0% {
-    top: -5%;
-    opacity: 0;
-  }
-
-  10% {
-    opacity: 1;
-  }
-
-  90% {
-    opacity: 1;
-  }
-
-  100% {
-    top: 105%;
-    opacity: 0;
-  }
 }
 
 /* Glassmorphism utilities */
