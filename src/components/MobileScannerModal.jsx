@@ -139,10 +139,16 @@ export default function MobileScannerModal({ isOpen, onClose, onSelectScenarioAn
       <div className="relative flex-1 flex flex-col items-center justify-center px-4 py-3">
         {/* Viewfinder Target Frame */}
         <div className="relative w-full max-w-[320px] aspect-[4/5] rounded-xl border-2 border-dashed border-brass/60 overflow-hidden bg-panel-darker flex items-center justify-center shadow-2xl">
-          {showLiveFeed && (
-            <video ref={videoRef} autoPlay playsInline muted onCanPlay={() => setCameraReady(true)} className="absolute inset-0 w-full h-full object-cover" aria-label="Live camera feed" />
-          )}
-          {!showLiveFeed && <video ref={videoRef} className="hidden" muted playsInline aria-hidden="true" />}
+          <video 
+            ref={videoRef} 
+            autoPlay 
+            playsInline 
+            muted 
+            onCanPlay={() => setCameraReady(true)} 
+            className={`absolute inset-0 w-full h-full object-cover ${showLiveFeed ? '' : 'hidden'}`} 
+            aria-label="Live camera feed" 
+            aria-hidden={!showLiveFeed}
+          />
           {cameraError && (
             <div className="absolute top-3 left-3 right-3 z-20 bg-ink/90 border border-brass/40 rounded-lg px-3 py-2 flex items-start gap-2">
               <VideoOff size={14} className="text-brass shrink-0 mt-0.5" />
