@@ -132,6 +132,7 @@ export default function App() {
                 setActiveTab("citizen");
               }}
               onOpenLogin={() => setIsLoginOpen(true)}
+              onOpenScanner={() => setIsScannerOpen(true)}
               userRole={userRole}
             />
           )}

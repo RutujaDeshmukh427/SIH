@@ -15,10 +15,12 @@ import {
   Download,
   Edit2,
   FileText,
-  Filter
+  Filter,
+  Camera,
+  FolderOpen
 } from "lucide-react";
 
-export default function HomePage({ onStartOfficial, onStartCitizen, userRole }) {
+export default function HomePage({ onStartOfficial, onStartCitizen, onOpenScanner, userRole }) {
   const [dragActive, setDragActive] = useState(false);
   const [filter, setFilter] = useState("All");
 
@@ -84,20 +86,30 @@ export default function HomePage({ onStartOfficial, onStartCitizen, userRole }) 
             <UploadCloud size={48} className={`mb-4 ${dragActive ? 'text-blue-400' : 'text-slate-400'}`} />
             <h3 className="text-lg font-bold text-white mb-1">Drag & Drop package imagery here</h3>
             <p className="text-slate-400 text-sm mb-6">JPEG, PNG, or PDF formats up to 50MB</p>
-            <label className="cursor-pointer bg-white hover:bg-slate-100 text-slate-900 font-bold text-sm px-6 py-3 rounded-xl shadow-lg transition-all flex items-center justify-center gap-2">
-              <Scan size={16} />
-              <span>Browse Files</span>
-              <input 
-                type="file" 
-                accept="image/*,.pdf" 
-                className="hidden" 
-                onChange={(e) => {
-                  if (e.target.files && e.target.files.length > 0) {
-                    onStartOfficial();
-                  }
-                }} 
-              />
-            </label>
+            <div className="flex items-center justify-center gap-4 flex-wrap">
+              <label className="cursor-pointer bg-white hover:bg-slate-100 text-slate-900 font-bold text-sm px-6 py-3 rounded-xl shadow-lg transition-all flex items-center justify-center gap-2">
+                <FolderOpen size={16} />
+                <span>Browse Files</span>
+                <input 
+                  type="file" 
+                  accept="image/*,.pdf" 
+                  className="hidden" 
+                  onChange={(e) => {
+                    if (e.target.files && e.target.files.length > 0) {
+                      onStartOfficial();
+                    }
+                  }} 
+                />
+              </label>
+              
+              <button
+                onClick={onOpenScanner}
+                className="bg-blue-600 hover:bg-blue-500 text-white font-bold text-sm px-6 py-3 rounded-xl shadow-lg shadow-blue-500/20 transition-all flex items-center justify-center gap-2"
+              >
+                <Scan size={16} />
+                <span>Live Scan</span>
+              </button>
+            </div>
           </div>
         </div>
 
