@@ -84,13 +84,20 @@ export default function HomePage({ onStartOfficial, onStartCitizen, userRole }) 
             <UploadCloud size={48} className={`mb-4 ${dragActive ? 'text-blue-400' : 'text-slate-400'}`} />
             <h3 className="text-lg font-bold text-white mb-1">Drag & Drop package imagery here</h3>
             <p className="text-slate-400 text-sm mb-6">JPEG, PNG, or PDF formats up to 50MB</p>
-            <button
-              onClick={onStartOfficial}
-              className="bg-white hover:bg-slate-100 text-slate-900 font-bold text-sm px-6 py-3 rounded-xl shadow-lg transition-all flex items-center justify-center gap-2"
-            >
+            <label className="cursor-pointer bg-white hover:bg-slate-100 text-slate-900 font-bold text-sm px-6 py-3 rounded-xl shadow-lg transition-all flex items-center justify-center gap-2">
               <Scan size={16} />
               <span>Browse Files</span>
-            </button>
+              <input 
+                type="file" 
+                accept="image/*,.pdf" 
+                className="hidden" 
+                onChange={(e) => {
+                  if (e.target.files && e.target.files.length > 0) {
+                    onStartOfficial();
+                  }
+                }} 
+              />
+            </label>
           </div>
         </div>
 
