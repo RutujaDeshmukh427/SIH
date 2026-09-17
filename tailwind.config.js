@@ -7,55 +7,57 @@ export default {
   theme: {
     extend: {
       colors: {
-        ink: "#F4F7F9",
+        ink: "#F8FAFC",
         panel: {
-          DEFAULT: "rgba(255, 255, 255, 0.7)",
-          raised: "rgba(255, 255, 255, 0.95)",
-          line: "rgba(100, 116, 139, 0.15)",
-          darker: "rgba(240, 244, 248, 0.8)",
+          DEFAULT: "rgba(255, 255, 255, 0.92)",
+          raised: "#FFFFFF",
+          line: "rgba(226, 232, 240, 0.9)",
+          darker: "#F1F5F9",
         },
         paper: {
           DEFAULT: "#FFFFFF",
-          ink: "#1E293B",
+          ink: "#0F172A",
         },
         brass: {
-          DEFAULT: "#3B82F6", // Calm Blue
-          strong: "#60A5FA",
+          DEFAULT: "#1D4ED8", // Executive Sapphire Blue
+          strong: "#1E40AF",
           ink: "#FFFFFF",
-          glow: "rgba(59, 130, 246, 0.4)",
+          glow: "rgba(29, 78, 216, 0.25)",
         },
         citizen: {
-          primary: "#14B8A6", // Calm Teal 
-          secondary: "#2DD4BF",
-          glow: "rgba(20, 184, 166, 0.3)",
+          primary: "#0284C7", // Trustworthy Civic Cerulean
+          secondary: "#0369A1",
+          glow: "rgba(2, 132, 199, 0.2)",
         },
         text: {
-          1: "#0F172A",
-          2: "#475569",
-          3: "#94A3B8",
+          1: "#0F172A", // Slate 900
+          2: "#334155", // Slate 700
+          3: "#64748B", // Slate 500
         },
         status: {
-          pass: "#10B981",
-          'pass-bg': "rgba(16, 185, 129, 0.15)",
-          fail: "#EF4444",
-          'fail-bg': "rgba(239, 68, 68, 0.15)",
-          review: "#F59E0B",
-          'review-bg': "rgba(245, 158, 11, 0.15)",
+          pass: "#059669",
+          'pass-bg': "rgba(5, 150, 105, 0.1)",
+          fail: "#DC2626",
+          'fail-bg': "rgba(220, 38, 38, 0.1)",
+          review: "#D97706",
+          'review-bg': "rgba(217, 119, 6, 0.1)",
         }
       },
       fontFamily: {
-        serif: ["'Space Grotesk'", "sans-serif"],
-        sans: ["'Outfit'", "sans-serif"],
+        brand: ["'Plus Jakarta Sans'", "'Montserrat'", "sans-serif"],
+        serif: ["'Cinzel'", "serif"],
+        sans: ["'Inter'", "sans-serif"],
+        display: ["'Plus Jakarta Sans'", "'Montserrat'", "sans-serif"],
         mono: ["'JetBrains Mono'", "monospace"],
       },
       boxShadow: {
-        'brass-glow': '0 0 30px -5px rgba(251, 191, 36, 0.5)',
-        'pass-glow': '0 0 30px -5px rgba(16, 185, 129, 0.5)',
-        'fail-glow': '0 0 30px -5px rgba(244, 63, 94, 0.5)',
-        'glass': '0 8px 32px 0 rgba(0, 0, 0, 0.4)',
+        'brass-glow': '0 4px 14px -1px rgba(29, 78, 216, 0.3)',
+        'pass-glow': '0 4px 14px -1px rgba(5, 150, 105, 0.25)',
+        'fail-glow': '0 4px 14px -1px rgba(220, 38, 38, 0.25)',
+        'glass': '0 4px 20px -2px rgba(15, 23, 42, 0.06), 0 2px 6px -1px rgba(15, 23, 42, 0.04)',
       },
       backdropBlur: {
-        'glass': '16px',
+        'glass': '20px',
       },
       animation: {
         'spin-slow': 'spin 8s linear infinite',

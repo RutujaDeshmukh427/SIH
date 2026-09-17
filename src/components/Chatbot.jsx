@@ -83,14 +83,14 @@ export default function Chatbot() {
             {!isOpen && (
                 <button
                     onClick={() => setIsOpen(true)}
-                    className="fixed bottom-6 right-6 p-4 bg-brass text-brass-ink rounded-full shadow-glass hover:scale-105 transition-transform z-50 flex items-center justify-center"
+                    className="fixed bottom-24 right-6 p-4 bg-brass text-brass-ink rounded-full shadow-glass hover:scale-105 transition-transform z-40 flex items-center justify-center"
                 >
                     <MessageSquare size={24} />
                 </button>
             )}
 
             {isOpen && (
-                <div className="fixed bottom-6 right-6 w-80 h-96 bg-panel backdrop-blur-glass border border-panel-line rounded-2xl shadow-glass flex flex-col z-50 overflow-hidden text-text-1">
+                <div className="fixed bottom-24 right-6 w-80 h-96 bg-panel backdrop-blur-glass border border-panel-line rounded-2xl shadow-glass flex flex-col z-40 overflow-hidden text-text-1">
                     <div className="flex justify-between items-center p-4 bg-panel-darker border-b border-panel-line">
                         <h3 className="font-semibold flex items-center gap-2">
                             <MessageSquare size={18} /> LabelLens Assistant
