@@ -1,70 +1,239 @@
 import React, { useState } from "react";
 import Navbar from "./components/Navbar";
-import Rule6Engine from "./components/Rule6Engine";
+import BottomNav from "./components/BottomNav";
+import Sidebar from "./components/Sidebar";
+import HomePage from "./components/HomePage";
+import LandingPage from "./components/LandingPage";
+import LoginModal from "./components/LoginModal";
+import UserProfileModal from "./components/UserProfileModal";
 import VisionInspector from "./components/VisionInspector";
 import RuleEngineSandbox from "./components/RuleEngineSandbox";
 import NoticeGenerator from "./components/NoticeGenerator";
 import HeatmapMonitor from "./components/HeatmapMonitor";
+import MobileScannerModal from "./components/MobileScannerModal";
+import CitizenScanner from "./components/CitizenScanner";
+import Chatbot from "./components/Chatbot";
+import Rule6Engine from "./components/Rule6Engine";
+import { pushCitizenReport } from "./data/districtData";
 
 export default function App() {
-  const [activeTab, setActiveTab] = useState("rule6");
+  const [userRole, setUserRole] = useState("official");
+  const [activeTab, setActiveTab] = useState("home");
+  const [language, setLanguage] = useState("English");
   const [selectedNoticeScenario, setSelectedNoticeScenario] = useState(null);
+  const [isScannerOpen, setIsScannerOpen] = useState(false);
+  const [feedRefreshKey, setFeedRefreshKey] = useState(0);
+  const [isProfileOpen, setIsProfileOpen] = useState(false);
+  const [isLoginOpen, setIsLoginOpen] = useState(false);
+  const [isLoggedIn, setIsLoggedIn] = useState(false);
+  const [currentUser, setCurrentUser] = useState(null);
+  const [hasFilledProfile, setHasFilledProfile] = useState(false);
+  const [userProfile, setUserProfile] = useState({
+    name: "",
+    email: "",
+    gender: "",
+    preferences: "",
+    allergies: [],
+    hasDiabetes: false,
+  });
+  const [rule6Mode, setRule6Mode] = useState("qr");
+
+  const handleRoleChange = (role) => {
+    const newRole = typeof role === "string" ? role : (userRole === "citizen" ? "official" : "citizen");
+    setUserRole(newRole);
+    setActiveTab(newRole === "citizen" ? "citizen" : "vision");
+  };
+
+  const handleLoginSuccess = (user) => {
+    setIsLoggedIn(true);
+    setCurrentUser(user);
+    const role = user?.role || "official";
+    setUserRole(role);
+    setUserProfile((prev) => ({
+      ...prev,
+      name: user?.name || prev.name,
+      email: user?.email || prev.email,
+    }));
+    setActiveTab(role === "citizen" ? "citizen" : "vision");
+  };
+
+  const handleCitizenReport = (report) => {
+    pushCitizenReport(report);
+    setFeedRefreshKey((prev) => prev + 1);
+  };
+
+  const handleLogout = () => {
+    setIsLoggedIn(false);
+    setCurrentUser(null);
+    setUserRole("official");
+    setActiveTab("home");
+  };
+
+  React.useEffect(() => {
+    const officialOnlyTabs = ["vision", "rulesandbox", "notices", "rule6"];
+    if (userRole === "citizen" && officialOnlyTabs.includes(activeTab)) {
+      setActiveTab("citizen");
+    }
+  }, [userRole, activeTab]);
 
   const handleGenerateNotice = (scenario) => {
     setSelectedNoticeScenario(scenario);
     setActiveTab("notices");
   };
 
+  const handleSelectScenarioAndScan = (mode, frameB64 = null) => {
+    if (mode) setRule6Mode(mode);
+    setActiveTab(userRole === "citizen" ? "citizen" : "vision");
+  };
+
+  if (!isLoggedIn) {
+    return <LandingPage onLoginSuccess={handleLoginSuccess} />;
+  }
+
   return (
-    <div className="min-h-screen bg-[#0B1520] text-[#EDEAE1] flex flex-col font-sans selection:bg-[#C9A15A] selection:text-[#241B08]">
-      {/* Navigation Header */}
-      <Navbar activeTab={activeTab} setActiveTab={setActiveTab} />
+    <div className="min-h-screen bg-ink text-text-1 flex font-sans selection:bg-blue-600/15 selection:text-blue-900 bg-grid-mesh relative">
+      {/* Sidebar for Desktop */}
+      <Sidebar
+        activeTab={activeTab}
+        setActiveTab={setActiveTab}
+        onOpenScanner={() => setIsScannerOpen(true)}
+        userRole={userRole}
+      />
 
-      {/* Main Content Area */}
-      <main className="flex-1 max-w-7xl w-full mx-auto px-4 sm:px-6 py-6 sm:py-8">
-        {activeTab === "rule6" && (
-          <Rule6Engine onGenerateNotice={handleGenerateNotice} />
-        )}
+      {/* Main Content Wrapper */}
+      <div className="flex-1 flex flex-col min-w-0">
+        {/* Navigation Header */}
+        <Navbar
+          activeTab={activeTab}
+          setActiveTab={setActiveTab}
+          onOpenScanner={() => setIsScannerOpen(true)}
+          userRole={userRole}
+          onSwitchRole={handleRoleChange}
+          onRoleChange={handleRoleChange}
+          onOpenProfile={() => setIsProfileOpen(true)}
+          onOpenLogin={() => setIsLoginOpen(true)}
+          isLoggedIn={isLoggedIn}
+          currentUser={currentUser}
+          language={language}
+          setLanguage={setLanguage}
+          onLogout={handleLogout}
+        />
 
-        {activeTab === "vision" && (
-          <VisionInspector />
-        )}
+        {/* Main Content Area */}
+        <main className="flex-1 max-w-7xl w-full mx-auto px-4 sm:px-6 lg:px-8 py-4 sm:py-6 pb-28">
+          {activeTab === "home" && (
+            <HomePage
+              onStartOfficial={() => {
+                setUserRole("official");
+                setActiveTab("vision");
+              }}
+              onStartCitizen={() => {
+                setUserRole("citizen");
+                setActiveTab("citizen");
+              }}
+              onOpenLogin={() => setIsLoginOpen(true)}
+              onOpenScanner={() => setIsScannerOpen(true)}
+              userRole={userRole}
+            />
+          )}
 
-        {activeTab === "rulesandbox" && (
-          <RuleEngineSandbox />
-        )}
+          {activeTab === "vision" && (
+            <VisionInspector />
+          )}
 
-        {activeTab === "notices" && (
-          <NoticeGenerator
-            scenarioForNotice={selectedNoticeScenario}
-            onBackToScan={() => setActiveTab("rule6")}
-          />
-        )}
+          {activeTab === "rule6" && (
+            <Rule6Engine
+              mode={rule6Mode}
+              setMode={setRule6Mode}
+              onGenerateNotice={handleGenerateNotice}
+              onOpenScanner={() => setIsScannerOpen(true)}
+            />
+          )}
 
-        {activeTab === "heatmap" && (
-          <HeatmapMonitor />
-        )}
-      </main>
+          {activeTab === "rulesandbox" && (
+            <RuleEngineSandbox />
+          )}
 
-      {/* Global Regulatory Footer */}
-      <footer className="border-t border-[#26394B] bg-[#0E1A26] py-6 text-xs text-[#63768A] mt-12 no-print">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 flex flex-col sm:flex-row items-center justify-between gap-4">
-          <div className="max-w-2xl text-center sm:text-left leading-relaxed">
-            <p>
-              Rule citations reference the <strong>Legal Metrology (Packaged Commodities) Rules, 2011</strong>, as amended by the Second Amendment Rules, 2022 (electronics QR proviso) and e-commerce digital disclosure amendments (Rule 6(10) &amp; Rule 6(10A)).
-            </p>
-            <p className="mt-1 text-[11px] font-mono text-[#99AAB8]">
-              Department of Consumer Affairs (DoCA) • Ministry of Consumer Affairs, Food &amp; Public Distribution • SIH 2026 Problem Statement 26034
-            </p>
+          {activeTab === "notices" && (
+            <NoticeGenerator
+              scenarioForNotice={selectedNoticeScenario}
+              onBackToScan={() => setActiveTab("vision")}
+            />
+          )}
+
+          {activeTab === "heatmap" && (
+            <HeatmapMonitor refreshKey={feedRefreshKey} />
+          )}
+
+          {activeTab === "citizen" && (
+            <CitizenScanner onReportSubmitted={handleCitizenReport} />
+          )}
+        </main>
+
+        {/* Global Regulatory Footer */}
+        <footer className="border-t border-panel-line bg-panel-darker py-5 sm:py-6 text-xs text-text-3 mt-8 sm:mt-12 mb-20 md:mb-0 no-print">
+          <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 flex flex-col sm:flex-row items-center justify-between gap-4">
+            <div className="max-w-2xl text-center sm:text-left leading-relaxed">
+              <p>
+                Rule citations reference the <strong>Legal Metrology (Packaged Commodities) Rules, 2011</strong>, as amended by the Second Amendment Rules, 2022 (electronics QR proviso) and e-commerce digital disclosure amendments (Rule 6(10) &amp; Rule 6(10A)).
+              </p>
+              <p className="mt-1 text-[11px] font-mono text-text-2">
+                Department of Consumer Affairs (DoCA) • Ministry of Consumer Affairs, Food &amp; Public Distribution • SIH 2026 Problem Statement 26034
+              </p>
+            </div>
+
+            <div className="flex flex-col sm:items-end gap-1 text-[11px] font-mono text-center sm:text-right flex-none">
+              <span className="text-brass font-semibold">LabelLens Compliance Verification System</span>
+              <span>Tamper-Proof Chain-of-Custody (SHA-256)</span>
+              <span className="text-status-pass">● All Core Services Operational</span>
+            </div>
           </div>
+        </footer>
+      </div>
 
-          <div className="flex flex-col sm:items-end gap-1 text-[11px] font-mono text-center sm:text-right">
-            <span className="text-[#C9A15A] font-semibold">LabelLens Compliance Verification System</span>
-            <span>Tamper-Proof Chain-of-Custody (SHA-256)</span>
-            <span className="text-[#5AAE83]">● All Core Services Operational</span>
-          </div>
-        </div>
-      </footer>
+      {/* Fixed Mobile Bottom Navigation */}
+      <div className="md:hidden">
+        <BottomNav
+          activeTab={activeTab}
+          setActiveTab={setActiveTab}
+          onOpenScanner={() => setIsScannerOpen(true)}
+          userRole={userRole}
+        />
+      </div>
+
+      {/* Interactive Mobile Camera Scanner Modal */}
+      <MobileScannerModal
+        isOpen={isScannerOpen}
+        onClose={() => setIsScannerOpen(false)}
+        onSelectScenarioAndScan={handleSelectScenarioAndScan}
+      />
+
+      {/* User Profile Modal */}
+      <UserProfileModal
+        isOpen={isProfileOpen}
+        onClose={() => {
+          if (hasFilledProfile) setIsProfileOpen(false);
+        }}
+        profile={userProfile}
+        setProfile={setUserProfile}
+        userRole={userRole}
+        onRoleChange={handleRoleChange}
+        isMandatory={!hasFilledProfile}
+        onSave={() => {
+          setHasFilledProfile(true);
+          setIsProfileOpen(false);
+        }}
+      />
+
+      {/* Shopify-Style Floating Login Modal */}
+      <LoginModal
+        isOpen={isLoginOpen}
+        onClose={() => setIsLoginOpen(false)}
+        onLoginSuccess={handleLoginSuccess}
+      />
+
+      {/* Persistent Chatbot Widget */}
+      <Chatbot />
     </div>
   );
 }

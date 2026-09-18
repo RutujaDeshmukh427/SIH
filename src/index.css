@@ -1,73 +1,100 @@
+@import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@500;600;700;800;900&family=Inter:wght@300;400;500;600;700;800&family=Montserrat:wght@500;600;700;800&family=JetBrains+Mono:wght@400;500&display=swap');
+
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
 
 @layer base {
   :root {
-    --ink: #0B1520;
-    --panel: #121F2E;
-    --panel-raised: #17293B;
-    --panel-line: #26394B;
-    --paper: #ECE7D9;
-    --paper-ink: #1C1A12;
-    --brass: #C9A15A;
-    --brass-strong: #E0BE7E;
-    --brass-ink: #241B08;
-    --text-1: #EDEAE1;
-    --text-2: #99AAB8;
-    --text-3: #63768A;
-    --pass: #5AAE83;
-    --fail: #D06A5A;
-    --review: #DA9E4E;
+    --ink: #F8FAFC;
+    --panel: rgba(255, 255, 255, 0.92);
+    --panel-raised: #FFFFFF;
+    --panel-line: rgba(226, 232, 240, 0.9);
+    --paper: #FFFFFF;
+    --paper-ink: #0F172A;
+    --brass: #1D4ED8;
+    --brass-strong: #1E40AF;
+    --brass-ink: #FFFFFF;
+    --text-1: #0F172A;
+    --text-2: #334155;
+    --text-3: #64748B;
+    --pass: #059669;
+    --fail: #DC2626;
+    --review: #D97706;
   }
 
   body {
-    background-color: #0B1520;
-    color: #EDEAE1;
-    font-family: 'IBM Plex Sans', -apple-system, BlinkMacSystemFont, sans-serif;
+    background-color: var(--ink);
+    color: var(--text-1);
+    font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+    -webkit-tap-highlight-color: transparent;
+    overflow-x: hidden;
   }
 }
 
-@keyframes scanSweep {
-  0% { top: -25%; }
-  100% { top: 105%; }
+/* Executive Professional Technical Backdrop */
+.bg-grid-mesh {
+  background-color: #F8FAFC;
+  background-image:
+    radial-gradient(ellipse at 50% -20%, rgba(219, 234, 254, 0.5) 0%, transparent 60%),
+    radial-gradient(ellipse at 100% 100%, rgba(224, 242, 254, 0.3) 0%, transparent 50%),
+    linear-gradient(to right, rgba(226, 232, 240, 0.4) 1px, transparent 1px),
+    linear-gradient(to bottom, rgba(226, 232, 240, 0.4) 1px, transparent 1px);
+  background-size: 100% 100%, 100% 100%, 36px 36px, 36px 36px;
+  position: relative;
+  background-attachment: fixed;
+  z-index: 0;
 }
 
-@keyframes fadeIn {
-  from { opacity: 0; transform: translateY(4px); }
-  to { opacity: 1; transform: translateY(0); }
+/* Glassmorphism utilities */
+.glass-panel {
+  @apply bg-panel backdrop-blur-glass border border-panel-line shadow-glass rounded-xl;
+  position: relative;
+  z-index: 10;
 }
 
-.animate-fadeIn {
-  animation: fadeIn 350ms ease forwards;
+.glass-panel-raised {
+  @apply bg-panel-raised backdrop-blur-glass border border-panel-line shadow-glass rounded-xl hover:translate-y-[-3px] transition-all duration-300;
+  position: relative;
+  z-index: 10;
 }
 
-/* Custom subtle scrollbar */
+/* Smooth transitions for all interactive elements */
+button,
+a,
+input {
+  @apply transition-all duration-200 ease-in-out;
+}
+
+button:active {
+  @apply scale-[0.97];
+}
+
+/* Scrollbar tweaks */
+.no-scrollbar::-webkit-scrollbar {
+  display: none;
+}
+
+.no-scrollbar {
+  -ms-overflow-style: none;
+  scrollbar-width: none;
+}
+
 .scrollbar-thin::-webkit-scrollbar {
   width: 6px;
   height: 6px;
 }
+
 .scrollbar-thin::-webkit-scrollbar-track {
-  background: #0E1A26;
-}
-.scrollbar-thin::-webkit-scrollbar-thumb {
-  background: #26394B;
-  border-radius: 3px;
-}
-.scrollbar-thin::-webkit-scrollbar-thumb:hover {
-  background: #63768A;
+  background: rgba(0, 0, 0, 0.2);
+  border-radius: 4px;
 }
 
-/* Print optimizations */
-@media print {
-  body {
-    background: #FFFFFF !important;
-    color: #000000 !important;
-  }
-  .no-print {
-    display: none !important;
-  }
-  header, footer, nav {
-    display: none !important;
-  }
+.scrollbar-thin::-webkit-scrollbar-thumb {
+  background: rgba(255, 255, 255, 0.15);
+  border-radius: 4px;
+}
+
+.scrollbar-thin::-webkit-scrollbar-thumb:hover {
+  background: rgba(255, 255, 255, 0.3);
 }

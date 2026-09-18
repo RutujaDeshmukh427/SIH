@@ -1,73 +1,123 @@
 import React from "react";
 import LogoMark from "./LogoMark";
-import { Shield, Sparkles, Sliders, FileText, MapPin, CheckCircle2 } from "lucide-react";
+import { UserCircle, Globe, Search } from "lucide-react";
 
-export default function Navbar({ activeTab, setActiveTab }) {
-  const tabs = [
-    { id: "rule6", label: "Rule 6 Engine", icon: Shield, badge: "3 Scenarios" },
-    { id: "vision", label: "Vision & Coin Calibrator", icon: Sparkles, badge: "₹5 Coin" },
-    { id: "rulesandbox", label: "LMPC Rule Sandbox", icon: Sliders, badge: "Weight Slabs" },
-    { id: "notices", label: "Show-Cause Notice", icon: FileText, badge: "Sec 39" },
-    { id: "heatmap", label: "Vigilance Heatmap", icon: MapPin, badge: "Live Feed" },
-  ];
+export default function Navbar({
+  activeTab,
+  setActiveTab,
+  userRole,
+  onOpenProfile,
+  language,
+  setLanguage,
+  onOpenLogin,
+  isLoggedIn,
+  currentUser,
+  onLogout,
+  onSwitchRole,
+}) {
 
   return (
-    <header className="border-b border-[#26394B] bg-[#0E1A26]/90 backdrop-blur sticky top-0 z-50">
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 py-3 flex flex-col md:flex-row items-center justify-between gap-3">
-        {/* Brand */}
-        <div className="flex items-center gap-3 w-full md:w-auto justify-between md:justify-start">
-          <div className="flex items-center gap-2.5 cursor-pointer" onClick={() => setActiveTab("rule6")}>
-            <LogoMark size={28} />
-            <div>
-              <div className="flex items-center gap-1.5 font-serif text-lg tracking-tight leading-none text-[#EDEAE1]">
-                <span>Label</span>
-                <span className="text-[#C9A15A] font-semibold">Lens</span>
-                <span className="text-[10px] font-mono uppercase bg-[#C9A15A]/15 text-[#C9A15A] px-1.5 py-0.5 rounded border border-[#C9A15A]/30 ml-1">
-                  SIH 2026
-                </span>
-              </div>
-              <div className="text-[11px] text-[#99AAB8] font-sans mt-0.5 hidden sm:block">
-                Dept. of Consumer Affairs • Legal Metrology (Packaged Commodities)
-              </div>
+    <header className="border-b border-panel-line bg-panel/85 backdrop-blur-xl sticky top-0 z-50 shadow-sm">
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 py-3 flex items-center justify-between gap-4">
+        {/* Brand & Home Link */}
+        <div className="flex items-center gap-4">
+          <div
+            className="flex items-center gap-3 cursor-pointer select-none active:scale-98 transition-transform py-1 px-2 rounded-xl hover:bg-panel-darker/60"
+            onClick={() => setActiveTab("home")}
+            title="Return to Home"
+          >
+            <LogoMark size={32} />
+            <div className="flex items-center text-[25px] font-brand tracking-[-0.03em] select-none leading-none">
+              <span className="font-semibold text-brass">Label</span>
+              <span className="font-extrabold text-slate-900 ml-[1px]">Lens</span>
             </div>
           </div>
 
-          <div className="md:hidden flex items-center gap-1.5 text-[11px] font-mono text-[#5AAE83] bg-[#5AAE83]/10 px-2 py-1 rounded border border-[#5AAE83]/30">
-            <CheckCircle2 size={12} />
-            <span>LMPC Engine Ready</span>
-          </div>
+          {activeTab !== "home" && (
+            <button
+              onClick={() => setActiveTab("home")}
+              className="hidden sm:inline-flex items-center gap-1 text-xs font-semibold text-slate-500 hover:text-slate-900 px-2.5 py-1 rounded-md hover:bg-slate-100 transition-colors"
+            >
+              <span>← Home</span>
+            </button>
+          )}
+
         </div>
 
-        {/* Navigation Tabs */}
-        <nav className="flex items-center gap-1.5 overflow-x-auto w-full md:w-auto pb-1 md:pb-0 scrollbar-thin">
-          {tabs.map((tab) => {
-            const Icon = tab.icon;
-            const isActive = activeTab === tab.id;
-            return (
+        {/* Center: Global Search Bar (Enterprise feature) */}
+        <div className="hidden md:flex flex-1 max-w-md mx-4 relative">
+          <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+            <Search size={16} className="text-slate-400" />
+          </div>
+          <input 
+            type="text" 
+            placeholder="Search products, manufacturers, or inspection IDs..." 
+            className="w-full bg-slate-100 border border-slate-200 text-slate-800 text-sm font-medium rounded-xl py-1.5 pl-9 pr-4 focus:outline-none focus:ring-2 focus:ring-brass/30 focus:border-brass/50 transition-all placeholder:text-slate-400 shadow-inner"
+          />
+        </div>
+
+        {/* Right Controls: Language Selector, Login Button & Profile */}
+        <div className="flex items-center gap-2 sm:gap-2.5">
+          <div className="flex items-center bg-white border border-panel-line rounded-lg px-2.5 sm:px-3 py-1.5 hover:border-brass/50 transition-colors shadow-sm">
+            <Globe size={15} className="text-brass mr-1.5 sm:mr-2 shrink-0" />
+            <select
+              value={language || "English"}
+              onChange={(e) => setLanguage && setLanguage(e.target.value)}
+              className="bg-transparent text-text-1 text-xs font-semibold focus:outline-none cursor-pointer appearance-none outline-none"
+              style={{ background: 'transparent' }}
+            >
+              <option className="bg-panel text-text-1" value="English">EN - English</option>
+              <option className="bg-panel text-text-1" value="Hindi">HI - हिन्दी</option>
+              <option className="bg-panel text-text-1" value="Marathi">MR - मराठी</option>
+              <option className="bg-panel text-text-1" value="Gujarati">GU - ગુજરાતી</option>
+              <option className="bg-panel text-text-1" value="Tamil">TA - தமிழ்</option>
+              <option className="bg-panel text-text-1" value="Telugu">TE - తెలుగు</option>
+              <option className="bg-panel text-text-1" value="Kannada">KN - ಕನ್ನಡ</option>
+              <option className="bg-panel text-text-1" value="Malayalam">ML - മലയാളം</option>
+              <option className="bg-panel text-text-1" value="Bengali">BN - বাংলা</option>
+              <option className="bg-panel text-text-1" value="Punjabi">PA - ਪੰਜਾਬੀ</option>
+              <option className="bg-panel text-text-1" value="Urdu">UR - اردو</option>
+              <option className="bg-panel text-text-1" value="Odia">OR - ଓଡ଼ିଆ</option>
+              <option className="bg-panel text-text-1" value="Assamese">AS - অসমীয়া</option>
+            </select>
+          </div>
+
+          {/* Auth Button */}
+          {isLoggedIn ? (
+            <div className="flex items-center gap-3">
+              <span className="hidden sm:inline-block text-xs font-semibold text-slate-700">
+                Hi, {currentUser?.name || "Officer"}
+              </span>
               <button
-                key={tab.id}
-                onClick={() => setActiveTab(tab.id)}
-                className={`flex items-center gap-2 px-3 py-1.5 rounded-md text-xs font-medium transition-all whitespace-nowrap ${
-                  isActive
-                    ? "bg-[#C9A15A] text-[#241B08] font-semibold shadow-sm"
-                    : "text-[#99AAB8] hover:text-[#EDEAE1] hover:bg-[#17293B]"
-                }`}
+                onClick={onLogout}
+                className="flex items-center gap-1.5 bg-slate-100 hover:bg-slate-200 active:scale-95 text-slate-700 text-xs font-semibold px-3 py-2 rounded-lg shadow-sm transition-all border border-slate-200"
+                title="Log out"
               >
-                <Icon size={14} className={isActive ? "text-[#241B08]" : "text-[#C9A15A]"} />
-                <span>{tab.label}</span>
-                <span
-                  className={`text-[9px] font-mono px-1 py-0.2 rounded ${
-                    isActive
-                      ? "bg-[#241B08]/20 text-[#241B08]"
-                      : "bg-[#26394B] text-[#99AAB8]"
-                  }`}
-                >
-                  {tab.badge}
-                </span>
+                <span>Log out</span>
               </button>
-            );
-          })}
-        </nav>
+            </div>
+          ) : (
+            onOpenLogin && (
+              <button
+                onClick={onOpenLogin}
+                className="flex items-center gap-1.5 bg-slate-900 hover:bg-black active:scale-95 text-white text-xs font-semibold px-3 py-2 rounded-lg shadow-sm transition-all"
+                title="Log in to LabelLens"
+              >
+                <span>Log in</span>
+              </button>
+            )
+          )}
+
+          {onOpenProfile && (
+            <button
+              onClick={onOpenProfile}
+              className="flex items-center justify-center p-2 rounded-lg bg-white border border-panel-line text-text-2 hover:text-brass hover:border-brass/40 transition-all shadow-sm"
+              title="User Profile & Settings"
+            >
+              <UserCircle size={19} />
+            </button>
+          )}
+        </div>
       </div>
     </header>
   );

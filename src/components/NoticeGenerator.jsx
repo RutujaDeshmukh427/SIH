@@ -40,25 +40,25 @@ export default function NoticeGenerator({ scenarioForNotice, onBackToScan }) {
   return (
     <div className="space-y-6">
       {/* Action Header */}
-      <div className="flex items-center justify-between flex-wrap gap-4 border-b border-[#26394B] pb-5 no-print">
+      <div className="flex items-center justify-between flex-wrap gap-4 border-b border-panel-line pb-4 sm:pb-5 no-print">
         <div>
-          <div className="inline-flex items-center gap-2 px-2.5 py-1 rounded bg-[#C9A15A]/10 border border-[#C9A15A]/30 text-[#C9A15A] text-xs font-mono mb-2">
+          <div className="inline-flex items-center gap-2 px-2.5 py-1 rounded bg-brass/10 border border-brass/30 text-brass text-xs font-mono mb-2">
             <FileText size={14} />
             <span>Automated Legal Workflows (Section 39, Legal Metrology Act, 2009)</span>
           </div>
-          <h1 className="font-serif text-2xl sm:text-3xl font-normal text-[#EDEAE1]">
+          <h1 className="font-serif text-2xl sm:text-3xl font-normal text-text-1">
             Statutory Show-Cause Notice Generator
           </h1>
-          <p className="text-xs sm:text-sm text-[#99AAB8] mt-1">
+          <p className="text-xs sm:text-sm text-text-2 mt-1 leading-relaxed">
             Instantly compiles Courtroom-grade legal notices with embedded OCR evidence and SHA-256 cryptographic chain-of-custody seal.
           </p>
         </div>
 
-        <div className="flex items-center gap-3">
+        <div className="flex items-center gap-3 w-full sm:w-auto justify-between sm:justify-end">
           {onBackToScan && (
             <button
               onClick={onBackToScan}
-              className="bg-[#17293B] hover:bg-[#26394B] border border-[#26394B] text-[#EDEAE1] text-xs font-medium px-3 py-2 rounded flex items-center gap-1.5 transition-all"
+              className="bg-panel-raised hover:bg-panel-line border border-panel-line text-text-1 text-xs font-medium px-3 py-2 rounded flex items-center gap-1.5 transition-all active:scale-95"
             >
               <ArrowLeft size={14} />
               <span>Back to Scanner</span>
@@ -67,7 +67,7 @@ export default function NoticeGenerator({ scenarioForNotice, onBackToScan }) {
 
           <button
             onClick={handlePrint}
-            className="bg-[#C9A15A] hover:bg-[#E0BE7E] text-[#241B08] font-semibold text-xs sm:text-sm px-4 py-2 rounded flex items-center gap-2 transition-all shadow"
+            className="bg-brass hover:bg-brass-strong active:scale-95 text-brass-ink font-semibold text-xs sm:text-sm px-4 py-2 rounded flex items-center gap-2 transition-all shadow-sm"
           >
             <Printer size={15} />
             <span>Print Official Notice (PDF)</span>
@@ -76,9 +76,9 @@ export default function NoticeGenerator({ scenarioForNotice, onBackToScan }) {
       </div>
 
       {/* Printable Legal Notice Document Container */}
-      <div className="max-w-4xl mx-auto bg-[#FFFFFF] text-[#111827] rounded shadow-2xl p-8 sm:p-12 font-serif border border-gray-200 print:shadow-none print:border-none print:p-0">
+      <div className="max-w-4xl mx-auto bg-[#FFFFFF] text-[#111827] rounded shadow-2xl p-5 sm:p-10 md:p-12 font-serif border border-gray-200 print:shadow-none print:border-none print:p-0">
         {/* Government Header */}
-        <div className="text-center border-b-2 border-[#111827] pb-4 mb-6">
+        <div className="text-center border-b-2 border-[#111827] pb-4 mb-5 sm:mb-6">
           <div className="font-sans font-bold text-xs sm:text-sm tracking-widest uppercase text-gray-700">
             Government of India
           </div>
@@ -94,12 +94,12 @@ export default function NoticeGenerator({ scenarioForNotice, onBackToScan }) {
         </div>
 
         {/* Notice Meta Row */}
-        <div className="flex justify-between items-start text-xs font-sans border-b border-gray-200 pb-3 mb-5">
+        <div className="flex justify-between items-start text-xs font-sans border-b border-gray-200 pb-3 mb-5 flex-wrap gap-2">
           <div>
             <div><strong className="text-gray-900">Case Ref:</strong> <span className="font-mono">{caseNumber}</span></div>
             <div><strong className="text-gray-900">Issuing Officer:</strong> LMO राजेश शर्मा (Badge #INS-DL-4029)</div>
           </div>
-          <div className="text-right">
+          <div className="text-left sm:text-right">
             <div><strong className="text-gray-900">Date of Notice:</strong> {sealData?.formattedTime || new Date().toLocaleDateString("en-IN")}</div>
             <div><strong className="text-gray-900">Jurisdiction:</strong> National Capital Territory of Delhi</div>
           </div>
@@ -137,8 +137,8 @@ export default function NoticeGenerator({ scenarioForNotice, onBackToScan }) {
         </div>
 
         {/* Violations Table */}
-        <div className="mb-6 font-sans">
-          <table className="w-full text-left text-xs border border-gray-300">
+        <div className="mb-6 font-sans overflow-x-auto">
+          <table className="w-full text-left text-xs border border-gray-300 min-w-[500px]">
             <thead className="bg-gray-100 text-gray-900 font-bold border-b border-gray-300">
               <tr>
                 <th className="p-2.5 border-r border-gray-300">Statutory Citation</th>
@@ -160,6 +160,48 @@ export default function NoticeGenerator({ scenarioForNotice, onBackToScan }) {
           </table>
         </div>
 
+        {/* Side-by-Side Photographic Evidence View */}
+        <div className="mb-6">
+          <div className="flex items-center gap-2 font-bold text-gray-900 mb-3 text-xs uppercase tracking-wide border-b border-gray-200 pb-2">
+            <AlertTriangle size={14} className="text-red-600" />
+            <span>Exhibit A: Photographic Evidence of Contravention</span>
+          </div>
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+            {/* Left: Raw image with bounding box */}
+            <div className="relative bg-gray-100 rounded-lg border border-gray-300 overflow-hidden aspect-video flex items-center justify-center">
+              <img src="https://images.unsplash.com/photo-1599021456807-25e0f54518cc?auto=format&fit=crop&w=600&q=80" alt="Product Evidence" className="w-full h-full object-cover" />
+              {/* Simulated red bounding box for violation */}
+              <div className="absolute top-1/4 left-1/4 w-1/3 h-1/5 border-2 border-red-500 bg-red-500/20 rounded shadow-[0_0_15px_rgba(239,68,68,0.5)]">
+                <div className="absolute -top-6 left-0 bg-red-600 text-white text-[9px] font-bold px-1.5 py-0.5 rounded shadow">
+                  VIOLATION: Omission
+                </div>
+              </div>
+            </div>
+            
+            {/* Right: Statutory Citation and Metadata */}
+            <div className="flex flex-col justify-center space-y-3 p-4 bg-gray-50 border border-gray-200 rounded-lg">
+              <div className="space-y-1">
+                <div className="text-[10px] font-bold text-red-600 uppercase tracking-wider">Statutory Citation</div>
+                <div className="text-sm font-bold text-gray-900">Rule 6(10) r/w Rule 6(1)(d)</div>
+                <p className="text-xs text-gray-600 mt-1 leading-relaxed">
+                  "Every package shall bear thereon or on label securely affixed thereto, a definite, plain and conspicuous declaration as to the month and year in which the commodity is manufactured or pre-packed or imported."
+                </p>
+              </div>
+              
+              <div className="pt-3 border-t border-gray-200 space-y-1.5">
+                <div className="text-[10px] font-bold text-gray-500 uppercase tracking-wider mb-1">EXIF Metadata extraction</div>
+                <div className="grid grid-cols-2 gap-2 text-[10px] font-mono text-gray-700">
+                  <div><span className="text-gray-500">Capture Device:</span> Apple iPhone 14 Pro</div>
+                  <div><span className="text-gray-500">Lens Aperture:</span> f/1.78</div>
+                  <div><span className="text-gray-500">Date/Time Orig:</span> 2026:09:17 14:32:45</div>
+                  <div><span className="text-gray-500">Color Space:</span> sRGB</div>
+                  <div className="col-span-2"><span className="text-gray-500">GPS Location:</span> {sealData?.gpsCoordinates.latitude || "18.5204 N"}, {sealData?.gpsCoordinates.longitude || "73.8567 E"}</div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
         {/* Penalty & 15-Day Directive */}
         <div className="text-xs sm:text-sm leading-relaxed space-y-3 mb-6 text-gray-800">
           <p>
@@ -173,7 +215,7 @@ export default function NoticeGenerator({ scenarioForNotice, onBackToScan }) {
         {/* Cryptographic Chain-of-Custody Seal (Tamper-Proof) */}
         <div className="border-t-2 border-dashed border-gray-300 pt-4 mt-6 font-sans text-xs">
           <div className="flex items-center gap-1.5 font-bold text-gray-800 mb-2">
-            <ShieldCheck size={16} className="text-[#C9A15A]" />
+            <ShieldCheck size={16} className="text-brass" />
             <span>Cryptographic Chain-of-Custody &amp; Electronic Seal (Sec 65B Indian Evidence Act)</span>
           </div>
 
@@ -194,7 +236,7 @@ export default function NoticeGenerator({ scenarioForNotice, onBackToScan }) {
         <div className="flex justify-between items-end pt-8 font-sans">
           <div className="text-[11px] text-gray-500">
             <div>Seal of Legal Metrology Inspectorate</div>
-            <div className="w-20 h-20 border-2 border-dashed border-gray-300 rounded-full flex items-center justify-center text-[9px] text-gray-400 mt-2">
+            <div className="w-18 h-18 sm:w-20 sm:h-20 border-2 border-dashed border-gray-300 rounded-full flex items-center justify-center text-[9px] text-gray-400 mt-2">
               [ OFFICIAL SEAL ]
             </div>
           </div>
